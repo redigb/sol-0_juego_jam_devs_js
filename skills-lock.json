@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "Writing Phaser 3 Games": {
+      "source": "tomcoolpxl/sugar-splat",
+      "sourceType": "github",
+      "computedHash": "b0fd09950905daaf3309ee8975f27c40766c4ea7beefa2ab1d9f21d1ca771266"
+    },
+    "game-development": {
+      "source": "miles990/claude-software-skills",
+      "sourceType": "github",
+      "computedHash": "4046c331dc78ff0cd0e55a8a540ef52038797af729425fe012fb6bb8a2173887"
+    }
+  }
+}

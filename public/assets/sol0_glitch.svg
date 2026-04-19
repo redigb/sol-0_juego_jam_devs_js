@@ -1,0 +1,30 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- CUERPO PRINCIPAL DESPLAZADO (GLITCH) -->
+  <path d="M36,43 L96,48 L102,68 L96,88 L36,83 L30,62 Z" fill="#7a3b1e" stroke="#ff2200" stroke-width="2" />
+  
+  <!-- CABEZA DISTORSIONADA -->
+  <rect x="44" y="22" width="44" height="35" rx="5" fill="#3a2810" stroke="#ff2200" stroke-width="2" transform="skewX(5)" />
+  
+  <!-- OJO ROJO CRÍTICO -->
+  <circle cx="66" cy="39" r="10" fill="#000" />
+  <circle cx="66" cy="39" r="7" fill="#ff2200" filter="url(#glow-red)" />
+  
+  <!-- ARTEFACTOS GLITCH (Líneas horizontales) -->
+  <rect x="20" y="50" width="90" height="2" fill="#ff2200" opacity="0.6" />
+  <rect x="15" y="75" width="40" height="1" fill="#00c8ff" opacity="0.4" />
+  <rect x="70" y="30" width="50" height="2" fill="#ff2200" opacity="0.5" />
+
+  <!-- ORUGAS ASIMÉTRICAS -->
+  <path d="M22,87 L42,87 L47,112 L17,112 Z" fill="#0d0a07" stroke="#ff2200" stroke-width="2" />
+  <path d="M85,83 L105,83 L110,108 L80,108 Z" fill="#0d0a07" stroke="#ff2200" stroke-width="2" />
+</svg>
