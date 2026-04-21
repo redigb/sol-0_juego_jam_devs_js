@@ -17,14 +17,14 @@ export class EnergyTower extends Phaser.GameObjects.Sprite {
         // Configurar eventos de animación para la máquina de estados
         this.on('animationcomplete', (animation: Phaser.Animations.Animation) => {
             if (animation.key === 'tower-opening') {
-                this.setState('OPENED');
+                this.setTowerState('OPENED');
             } else if (animation.key === 'tower-closing') {
-                this.setState('CLOSED');
+                this.setTowerState('CLOSED');
             }
         });
     }
 
-    public setState(state: TowerState) {
+    public setTowerState(state: TowerState) {
         if (this.currentState === state) return;
 
         this.currentState = state;
@@ -46,7 +46,7 @@ export class EnergyTower extends Phaser.GameObjects.Sprite {
         }
     }
 
-    public getState(): TowerState {
+    public getTowerState(): TowerState {
         return this.currentState;
     }
 }

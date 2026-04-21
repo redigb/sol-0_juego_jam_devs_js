@@ -58,6 +58,20 @@ export class Preloader extends Phaser.Scene {
       frameWidth: 92,
       frameHeight: 92
     });
+
+    // Torreta Oxidada y Munición
+    this.load.spritesheet('turret-oxidized', 'assets/sprites/objects/torreta/torreta_oxidada/torreta_oxidada.png', {
+      frameWidth: 169,
+      frameHeight: 123
+    });
+    this.load.spritesheet('ammo-nail', 'assets/sprites/objects/torreta/torreta_oxidada/municion.png', {
+      frameWidth: 192,
+      frameHeight: 108
+    });
+    this.load.spritesheet('scrap-hound', 'assets/sprites/enemies/scrap_hound.png', {
+      frameWidth: 169,
+      frameHeight: 92
+    });
   }
 
   create() {
@@ -72,6 +86,9 @@ export class Preloader extends Phaser.Scene {
     // Crear Animaciones (Idle y Walk)
     this.createPlayerAnimations();
     this.createTowerAnimation();
+    this.createTurretAnimations();
+    this.createBulletAnimations();
+    this.createEnemyAnimations();
 
     this.scene.start('MainMenu');
   }
@@ -202,5 +219,91 @@ export class Preloader extends Phaser.Scene {
     groundG.fillStyle(COLORS.ground).fillRect(0, 0, 64, 64);
     groundG.generateTexture('ground', 64, 64);
     groundG.destroy();
+  }
+
+  private createTurretAnimations() {
+    const dirs = ['dl', 'dr', 'ul', 'ur'];
+    
+    dirs.forEach((dir, i) => {
+      // Idle (Fila 0)
+      this.anims.create({
+        key: `turret-idle-${dir}`,
+        frames: [{ key: 'turret-oxidized', frame: i }],
+        frameRate: 1,
+        repeat: -1
+      });
+
+      // Fire (Fila 1)
+      this.anims.create({
+        key: `turret-fire-${dir}`,
+        frames: this.anims.generateFrameNumbers('turret-oxidized', { frames: [i + 4, i + 8] }),
+        frameRate: 10,
+        repeat: 0
+      });
+    });
+  }
+
+  private createBulletAnimations() {
+    // Usamos solo Fila 1 (Abajo) y Fila 4 (Arriba) con espejado (FlipX)
+    
+    // ABAJO (Fila 0)
+    this.anims.create({
+      key: 'bullet-move-down',
+      frames: this.anims.generateFrameNumbers('ammo-nail', { frames: [0, 1] }),
+      frameRate: 12,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'bullet-impact-down',
+      frames: [{ key: 'ammo-nail', frame: 2 }],
+      frameRate: 1,
+      repeat: 0
+    });
+
+    // ARRIBA (Fila 3)
+    this.anims.create({
+      key: 'bullet-move-up',
+      frames: this.anims.generateFrameNumbers('ammo-nail', { frames: [9, 10] }),
+      frameRate: 12,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'bullet-impact-up',
+      frames: [{ key: 'ammo-nail', frame: 11 }],
+      frameRate: 1,
+      repeat: 0
+    });
+  }
+
+  private createEnemyAnimations() {
+    // Usamos solo Fila 1 (Abajo) y Fila 3 (Arriba) con espejado (FlipX)
+    
+    // ABAJO (Fila 0)
+    this.anims.create({
+      key: 'scrap-hound-walk-down',
+      frames: this.anims.generateFrameNumbers('scrap-hound', { frames: [0, 1] }),
+      frameRate: 6,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'scrap-hound-death-down',
+      frames: this.anims.generateFrameNumbers('scrap-hound', { frames: [2, 3] }),
+      frameRate: 4,
+      repeat: 0
+    });
+
+    // ARRIBA (Fila 2)
+    this.anims.create({
+      key: 'scrap-hound-walk-up',
+      frames: this.anims.generateFrameNumbers('scrap-hound', { frames: [8, 9] }),
+      frameRate: 6,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'scrap-hound-death-up',
+      frames: this.anims.generateFrameNumbers('scrap-hound', { frames: [10, 11] }),
+      frameRate: 4,
+      repeat: 0
+    });
   }
 }

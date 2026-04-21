@@ -6,6 +6,7 @@ export interface GameState {
   // SOL-0 core stats
   energy: number;         // Watts: 0-100
   logic: number;          // Estabilidad del Nucleo Logico: 0-100
+  armor: number;          // Integridad fisica: 0-100
   isGlitching: boolean;   // Cuando logic < 20%
 
   // Colony resources
@@ -20,14 +21,19 @@ export interface GameState {
   spiderBots: SpiderBot[];
 
   // Game flags
+  gameStarted: boolean;
   isGameOver: boolean;
   isPaused: boolean;
+  isFactoryOpen: boolean;
   wave: number;
   timeElapsed: number;
 
   // Actions
+  setGameStarted: (v: boolean) => void;
+  setFactoryOpen: (v: boolean) => void;
   setEnergy: (v: number) => void;
   setLogic: (v: number) => void;
+  setArmor: (v: number) => void;
   setGlitching: (v: boolean) => void;
   addResource: (type: ResourceType, amount: number) => void;
   spendResource: (type: ResourceType, amount: number) => boolean;

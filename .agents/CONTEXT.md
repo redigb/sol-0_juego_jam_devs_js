@@ -1,32 +1,31 @@
 # Contexto de Desarrollo: SOL-0 — El Reinicio Chatarrero
 
 ## Resumen Ejecutivo
-Juego isométrico 2.5D de alta fidelidad construido con Phaser 3, Vite y TypeScript. Enfocado en exploración y mecánicas de recolección de chatarra con el robot SOL-0. Arquitectura rigurosa basada en Entidades, manteniendo un estándar de `0 Errores ESLint`.
+Juego isométrico 2.5D de alta fidelidad construido con Phaser 3, Vite y TypeScript. Enfocado en exploración y mecánicas de recolección de chatarra con el robot SOL-0. Arquitectura rigurosa basada en Entidades, manteniendo un estándar de `0 Errores ESLint` y lógica de estado centralizada en Zustand.
 
 ## Hitos Técnicos y Core Alcanzado
-1. **Entorno Isométrico Procedural (Staggered Map)**
-   - El mapa base no usa tilemaps prefabricados; se genera algorítmicamente en tiempo real llenando toda la cámara (grid interactivo) sin huecos (Staggered Isometric).
-   - Sistema radial de bioma: Núcleo Industrial central (Acero/Concreto) -> Wasteland exterior (Tierra/Óxido). Se descartaron las texturas de rejillas de alta densidad para evitar efecto de parpadeo (Moiré).
-2. **Sistema de Cámara y Renderizado Perfecto**
-   - Problema mitigado: *Sub-pixel Lerp Jitter* (tartamudeo visual al detener al player).
-   - Solución: Configuración severa de `pixelArt: true`, cámara con `roundPixels: true` y persecución paramétrica estricta (`lerp 1, 1`) vinculada al robot.
-3. **Propiedades de SOL-0**
-   - Spritesheet migrado al tamaño idóneo (64x64, render escalado por código).
-   - Animaciones y texturas con X-Flip para 4 direcciones base. Movimiento isométrico alineado.
-   - Dos emisores de partículas paralelos (Oruga derecha/izquierda) que inyectan humo beige al detectar movimiento.
-4. **Física Isométrica de Precisión (Collision Sculpting)**
-   - **Multi-Box Sculpting**: Sustitución de cajas AABB simples por zonas escalonadas para seguir las diagonales isométricas.
-   - **Bounding Box Dinámico**: Algoritmo que calcula el hitbox exacto post-dispersión basándose en el alcance real de los sprites.
-   - **Grid-Based Spawning**: Clústeres generados en cuadrículas con jitter, asegurando que los objetos formen un bloque sólido coincidente con el área de colisión.
-5. **Torre de Energía y Máquina de Estados**
-   - Nueva entidad `EnergyTower` con estados `CLOSED`, `OPENING`, `OPENED`, `CLOSING`.
-   - Manejo de animaciones multi-archivo con frames de 92x92px y escala masiva 3.5x.
+1. **Entorno Isométrico Procedural (Bioma Dinámico)**
+   - Mapa base generado algorítmicamente (grid 20x20) sin huecos.
+   - **Protocolo de Descarte Visual**: Eliminación de texturas de ácido y rejillas de alta frecuencia para evitar aliasing.
+2. **Sistema de Y-Sorting y Cámara**
+   - **Pies-Base Origin**: SOL-0 y objetos usan `origin(0.5, 1)` para un Y-sorting perfecto en perspectiva isométrica.
+   - Cámara con **Zoom 0.8** y `roundPixels: true` para una vista alejada nítida.
+3. **Mecánicas de Supervivencia Logística**
+   - **Sistema de Batería (PWR)**: Consumo dinámico (0.5W pasivo / 3.5W en movimiento).
+   - **Recarga de Campo**: Recarga por proximidad física a la `EnergyTower` (< 200px).
+4. **Sistema de Defensa e IA de Combate (NUEVO)**
+   - **Torreta Oxidada (Turret)**: Estructura destructible (100 HP) con IA de detección selectiva y rotación 360º.
+   - **Balística Isométrica (Bullet)**: Proyectiles optimizados con "FlipX", escala 0.2 y prevención de doble daño.
+   - **Scrap Hound (Enemigo)**: Tanque de asedio (15 HP) con sistema de "Muerte Persistente" (se convierte en chatarra decorativa).
+   - **IA de Asedio**: Los enemigos dañan activamente las estructuras defensivas por contacto físico.
+5. **Calidad de Código e Integridad**
+   - Aplicación constante de **Code Quality Guard**: 100% Type-safe y Lint-clean.
 
-## 🐛 Documentación Definitiva de Bug: "Doble Escala de Collider Arcade"
-**Problema Historico**: Los hitbox (`body.setSize`) de los obstáculos escalados quedaban desplazados.
-**Diagnóstico**: Phaser 3 aplica doble-escala si se multiplica manualmente el tamaño del body por la escala del sprite.
-**Solución**: Alimentar `setSize` y `setOffset` con dimensiones puras (no escaladas).
+## 🐛 Documentación de Soluciones Clave
+- **FlipX Dinámico**: Optimización de memoria usando solo 2 filas de spritesheets para cubrir las 4 direcciones isométricas mediante espejado por software.
+- **Doble Impacto (Bug Fix)**: Desactivación inmediata de `body.enable` en proyectiles durante el impacto para garantizar un balance de daño justo (1 bullet = 1 damage).
+- **Physics Null Reference**: Garantía de inicialización de cuerpo físico en el constructor de entidades antes de configurar dimensiones (`scene.physics.add.existing`).
 
 ---
-> [!TIP]
-> **Próximo Objetivo**: Implementar la lógica de conexión de cables entre SOL-0 y la Torre de Energía.
+> [!IMPORTANT]
+> **Próximo Objetivo**: Implementar el sistema de **Recolección de Chatarra (Scrap)** de los enemigos caídos para permitir la reparación/construcción de nuevas torretas.
