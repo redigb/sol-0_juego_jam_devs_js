@@ -9,6 +9,7 @@ export const HUD: React.FC = () => {
     const scrap = useGameStore((s) => s.scrapMetal);
     const isGlitching = useGameStore((s) => s.isGlitching);
     const gameStarted = useGameStore((s) => s.gameStarted);
+    const isGameOver = useGameStore((s) => s.isGameOver);
     const setFactoryOpen = useGameStore((s) => s.setFactoryOpen);
 
     if (!gameStarted) return null;
@@ -50,9 +51,12 @@ export const HUD: React.FC = () => {
             {/* Bottom Right: Resources & Global Factory Button */}
             <div className="hud-bottom-right">
                 {/* Scrap Counter (Read-only) */}
-                <div className="resource-display">
-                    <span className="res-icon">⚙️</span>
-                    <span className="res-count">{scrap}</span>
+                <div className="resource-display scrap-meter">
+                    <div className="res-label">CHATARRA</div>
+                    <div className="res-content">
+                        <span className="res-icon">⚙️</span>
+                        <span className="res-count">{scrap}</span>
+                    </div>
                 </div>
 
                 {/* Factory Button (Interactive) */}
@@ -64,6 +68,23 @@ export const HUD: React.FC = () => {
                     <span className="trigger-icon">🛠️</span>
                 </div>
             </div>
+
+            {/* Game Over Overlay */}
+            {isGameOver && (
+                <div className="go-overlay">
+                    <div className="go-panel">
+                        <div className="go-icon">☠️</div>
+                        <h1 className="go-title">PROTOCOLO TERMINADO</h1>
+                        <p className="go-sub">
+                            {armor <= 0 ? 'SOL-0 ha sido destruido.' : 'El Núcleo de Energía ha colapsado.'}
+                        </p>
+                        <div className="go-divider" />
+                        <button className="go-btn" onClick={() => window.location.reload()}>
+                            🔄 REINICIAR PROTOCOLO
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

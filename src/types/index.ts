@@ -45,7 +45,7 @@ export interface GameState {
   setGameOver: (v: boolean) => void;
   setPaused: (v: boolean) => void;
   setWave: (v: number) => void;
-  tick: (delta: number) => void;
+  tick: (delta: number, flags?: { isMoving?: boolean; isNearTower?: boolean }) => void;
 }
 
 export type ResourceType = 'scrapMetal' | 'circuitMolds' | 'twistedRebar';

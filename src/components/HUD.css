@@ -181,12 +181,41 @@
 }
 
 .resource-display {
-    background: rgba(13, 10, 7, 0.9);
-    padding: 10px 20px;
+    background: rgba(13, 10, 7, 0.95);
+    padding: 10px 15px;
     border: 2px solid #3a2810;
+    border-right: 4px solid #ff6600;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 120px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.resource-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: #ff6600;
+    opacity: 0.5;
+}
+
+.res-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #7a5a3a;
+    font-weight: bold;
+}
+
+.res-content {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .factory-trigger {
@@ -221,4 +250,104 @@
 .res-count {
     font-family: 'Special Elite', serif;
     color: #ff6600;
+}
+
+/* ── GAME OVER ─────────────────────────────────── */
+.go-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: auto;
+    animation: goFadeIn 0.6s ease-out;
+}
+
+@keyframes goFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.go-panel {
+    background: linear-gradient(160deg, #1a0800 0%, #0d0d0d 60%, #1a0400 100%);
+    border: 2px solid #ff4400;
+    border-radius: 6px;
+    padding: 52px 72px;
+    text-align: center;
+    box-shadow:
+        0 0 40px rgba(255, 68, 0, 0.5),
+        0 0 80px rgba(255, 68, 0, 0.25),
+        inset 0 0 30px rgba(255, 68, 0, 0.05);
+    animation: goPanelIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 460px;
+    width: 90%;
+}
+
+@keyframes goPanelIn {
+    from { transform: scale(0.82) translateY(-24px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.go-icon {
+    font-size: 64px;
+    margin-bottom: 18px;
+    display: block;
+    animation: goIconPulse 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px #ff4400);
+}
+
+@keyframes goIconPulse {
+    0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 12px #ff4400); }
+    50%       { transform: scale(1.1); filter: drop-shadow(0 0 28px #ff6600); }
+}
+
+.go-title {
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: #ff4400;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+    text-shadow: 0 0 24px rgba(255, 68, 0, 0.9), 0 0 8px rgba(255, 68, 0, 0.5);
+}
+
+.go-sub {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #cc8855;
+    letter-spacing: 1px;
+    margin: 0 0 28px;
+}
+
+.go-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ff4400 40%, #ff4400 60%, transparent);
+    margin-bottom: 32px;
+    box-shadow: 0 0 8px rgba(255, 68, 0, 0.6);
+}
+
+.go-btn {
+    background: transparent;
+    border: 1px solid #ff5500;
+    color: #ff8844;
+    padding: 14px 36px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.25s ease;
+    pointer-events: auto;
+}
+
+.go-btn:hover {
+    background: rgba(255, 85, 0, 0.18);
+    border-color: #ff8844;
+    color: #ffffff;
+    box-shadow: 0 0 24px rgba(255, 85, 0, 0.5);
+    letter-spacing: 4px;
 }

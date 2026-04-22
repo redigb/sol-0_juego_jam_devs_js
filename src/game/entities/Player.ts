@@ -9,6 +9,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         left: Phaser.Input.Keyboard.Key;
         right: Phaser.Input.Keyboard.Key;
     };
+    private eKey!: Phaser.Input.Keyboard.Key;
+    private collectCooldown: boolean = false;
     
     // Configuración de movimiento
     private speed: number = 160;
@@ -18,6 +20,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private sparkEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
     private barrelFX: Phaser.FX.Barrel | null = null;
     private colorMatrixFX: Phaser.FX.ColorMatrix | null = null;
+    private lastHitTime: number = 0;
+    private isDamageFlashing: boolean = false;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'soul-0');
@@ -32,8 +36,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         
         // Ajustar el cuerpo físico para el robot (64x64 escalado 2)
         const body = this.body as Phaser.Physics.Arcade.Body;
-        body.setSize(30, 20);
-        body.setOffset(17, 44); // Ajuste fino para las orugas con el nuevo origen
+        body.setSize(60, 40);
+        body.setOffset(2, 24); // Ajuste fino para las orugas con el nuevo origen
 
         // Configurar Emitter de partículas (Polvo)
         this.dustEmitter = scene.add.particles(0, 0, 'particleDust', {
@@ -53,6 +57,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             left: scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
             right: scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D),
         };
+        this.eKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
         // Prevención de "teclas atascadas" por pérdida de foco
         scene.game.events.on(Phaser.Core.Events.BLUR, () => {
@@ -210,6 +215,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private handleVisuals(isGlitching: boolean) {
         const time = this.scene.time.now / 1000;
 
+        // Prioridad 1: Daño Crítico (Flash Rojo)
+        if (this.isDamageFlashing) return;
+
         if (isGlitching) {
             // Efecto de Cortocircuito Eléctrico Agresivo (Estable)
             const flicker = Math.random();
@@ -250,5 +258,46 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             if (this.barrelFX) this.barrelFX.active = false;
             if (this.colorMatrixFX) this.colorMatrixFX.active = false;
         }
+    }
+    public takeDamage(amount: number) {
+        const store = useGameStore.getState();
+        if (store.isGameOver) return;
+
+        // Cooldown de daño para el jugador (evitar drenado instantáneo)
+        const now = this.scene.time.now;
+        if (now < this.lastHitTime + 250) return;
+        this.lastHitTime = now;
+
+        // 1. Actualizar Lógica de Store
+        store.setArmor(store.armor - amount);
+
+        // 2. Feedback Visual: Shake
+        this.scene.tweens.add({
+            targets: this,
+            x: this.x + (Math.random() - 0.5) * 10,
+            y: this.y + (Math.random() - 0.5) * 10,
+            duration: 40,
+            yoyo: true
+        });
+
+        // 3. Feedback Visual: Chispas de impacto (Rojizas para peligro)
+        const hitSparks = this.scene.add.particles(this.x, this.y - 40, 'electric-spark', {
+            speed: { min: 100, max: 250 },
+            scale: { start: 1.5, end: 0 },
+            lifespan: 300,
+            tint: 0xff4400,
+            blendMode: 'ADD',
+            emitting: false
+        });
+        hitSparks.explode(10);
+        this.scene.time.delayedCall(400, () => hitSparks.destroy());
+
+        // 4. Flash de Alerta (Mismo tono que la torreta para coherencia visual)
+        this.isDamageFlashing = true;
+        this.setTint(0xff8888);
+        this.scene.time.delayedCall(150, () => {
+            this.isDamageFlashing = false;
+            this.clearTint();
+        });
     }
 }

@@ -11,6 +11,7 @@ import './hud.css';
 export function HUD() {
   const isGameOver = useGameStore((s) => s.isGameOver);
   const isGlitching = useGameStore((s) => s.isGlitching);
+  const armor = useGameStore((s) => s.armor);
 
   return (
     <div className={`hud-overlay ${isGlitching ? 'hud-glitch' : ''}`}>
@@ -33,7 +34,17 @@ export function HUD() {
           añadir capa React encima si es necesario */}
       {isGameOver && (
         <div className="gameover-overlay">
-          {/* El game over visual principal lo maneja Phaser */}
+          <div className="gameover-panel">
+            <div className="gameover-icon">☠️</div>
+            <h1 className="gameover-title">PROTOCOLO TERMINADO</h1>
+            <p className="gameover-sub">
+              {armor <= 0 ? 'SOL-0 ha sido destruido.' : 'El Núcleo de Energía ha colapsado.'}
+            </p>
+            <div className="gameover-divider" />
+            <button className="gameover-btn" onClick={() => window.location.reload()}>
+              🔄 REINICIAR PROTOCOLO
+            </button>
+          </div>
         </div>
       )}
     </div>

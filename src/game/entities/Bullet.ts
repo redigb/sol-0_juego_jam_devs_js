@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 
 export class Bullet extends Phaser.Physics.Arcade.Sprite {
     private animSuffix: string = 'down';
+    public hasHit: boolean = false;
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'ammo-nail');
@@ -11,12 +12,17 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
         this.setCollideWorldBounds(false);
         this.setImmovable(false);
         this.setScale(0.2); // Escala ajustada para que parezcan clavos reales
+        
+        // Colisionador circular pequeño para precisión Isométrica
+        this.body!.setCircle(20, 76, 34); 
     }
 
     fire(x: number, y: number, targetX: number, targetY: number) {
         this.setPosition(x, y);
         this.setActive(true);
         this.setVisible(true);
+        this.hasHit = false;
+        if (this.body) this.body.enable = true; 
 
         const angle = Phaser.Math.Angle.Between(x, y, targetX, targetY);
         const speed = 600;
@@ -43,6 +49,9 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     }
 
     onImpact() {
+        if (this.hasHit) return;
+        this.hasHit = true;
+        
         this.body!.setVelocity(0, 0);
         this.body!.enable = false; // Desactivar física inmediatamente para evitar múltiples impactos
         this.play(`bullet-impact-${this.animSuffix}`);

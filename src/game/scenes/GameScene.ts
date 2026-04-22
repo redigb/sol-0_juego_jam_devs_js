@@ -45,7 +45,9 @@ export class GameScene extends Phaser.Scene {
             runChildUpdate: true
         });
         this.enemiesGroup = this.physics.add.group();
-        this.turretsGroup = this.add.group();
+        this.turretsGroup = this.physics.add.group({
+            immovable: true
+        });
         
         this.spawnEnergyTower();
         this.spawnObstacles();
@@ -55,22 +57,38 @@ export class GameScene extends Phaser.Scene {
         // 4. Inicializar SOL-0 (Player) en el centro del mundo
         this.player = new Player(this, this.worldSize.width / 2, this.worldSize.height / 2 + 150);
         this.physics.add.collider(this.player, this.obstaclesGroup);
+        this.physics.add.collider(this.player, this.energyTower);
         this.physics.add.collider(this.player, this.turretsGroup);
         
         // Colisiones de Combate
         this.physics.add.overlap(this.bulletsGroup, this.enemiesGroup, (bullet, enemy) => {
-            (bullet as Bullet).onImpact();
+            const b = bullet as Bullet;
+            if (b.hasHit) return;
+            
+            b.onImpact();
             (enemy as ScrapHound).takeDamage(1);
         }, undefined, this);
 
-        this.physics.add.collider(this.enemiesGroup, this.obstaclesGroup);
-        this.physics.add.collider(this.enemiesGroup, this.turretsGroup, (enemy, turret) => {
-            const t = turret as Turret;
-            if (!t.isDead) {
-                // Daño periódico por contacto (nerf de daño de asedio)
-                t.takeDamage(0.2); 
+        // Colisión Enemigo <=> Jugador (Detección de daño)
+        this.physics.add.collider(this.enemiesGroup, this.player, (_player, enemy) => {
+            const e = enemy as ScrapHound;
+            if (!e.isDead) {
+                this.player.takeDamage(1.5); 
             }
         });
+
+        this.physics.add.collider(this.enemiesGroup, this.obstaclesGroup);
+        
+        // Daño por contacto (Asedio): Usamos overlap para que sea continuo mientras se tocan
+        this.physics.add.overlap(this.enemiesGroup, this.turretsGroup, (_enemy, turret) => {
+            const t = turret as Turret;
+            if (!t.isDead) {
+                t.takeDamage(5.0); // Daño de mordisco/garra
+            }
+        });
+        
+        // También collider físico para que no se atraviesen
+        this.physics.add.collider(this.enemiesGroup, this.turretsGroup);
         
         // Bloquear a SOL-0 dentro de los límites del mundo
         this.player.setCollideWorldBounds(true);
@@ -104,10 +122,24 @@ export class GameScene extends Phaser.Scene {
             this.energyTower.setTowerState('OPENING');
         });
 
-        // Collider: Ajustado a la base del cilindro (140px de ancho, 30px de alto)
-        const zone = this.add.zone(cx, cy - 30, 140, 30);
-        this.obstaclesGroup.add(zone);
-        (zone.body as Phaser.Physics.Arcade.StaticBody).updateCenter();
+        // --- Zona de BLOQUEO FÍSICO (centrada en la base del cilindro) ---
+        const towerBlockZone = this.add.zone(cx, cy - 80, 140, 100);
+        this.physics.add.existing(towerBlockZone, true);
+        this.obstaclesGroup.add(towerBlockZone);
+
+        // Zona de detección de daño por asedio (ligeramente más grande para capturar todos los ángulos)
+        const towerDamageZone = this.add.zone(cx, cy - 70, 180, 130);
+        this.physics.add.existing(towerDamageZone, true);
+        
+        // Overlap: daño al núcleo si no está destruido
+        this.physics.add.overlap(this.enemiesGroup, towerDamageZone, () => {
+            if (!this.energyTower.isDead) {
+                this.energyTower.takeDamage(5.0);
+            }
+        });
+
+        // Colisión: enemigos rebotan contra la zona de bloqueo
+        this.physics.add.collider(this.enemiesGroup, towerBlockZone);
     }
 
     private spawnObstacles() {
@@ -226,6 +258,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     private spawnTestTurrets() {
+        /*
         const cx = this.worldSize.width / 2;
         const cy = this.worldSize.height / 2;
         
@@ -235,6 +268,7 @@ export class GameScene extends Phaser.Scene {
         
         this.turretsGroup.add(t1);
         this.turretsGroup.add(t2);
+        */
     }
 
     private spawnTestEnemies() {
@@ -251,15 +285,8 @@ export class GameScene extends Phaser.Scene {
             const enemy = new ScrapHound(this, x, y);
             this.enemiesGroup.add(enemy);
             
-            // Movimiento errático hacia el centro
-            this.tweens.add({
-                targets: enemy.body!.velocity,
-                x: (centerX - x) * 0.2 + (Math.random() - 0.5) * 50,
-                y: (centerY - y) * 0.2 + (Math.random() - 0.5) * 50,
-                duration: 2000,
-                yoyo: true,
-                repeat: -1
-            });
+            // Asignar objetivo inicial (Torre)
+            enemy.setTarget(this.energyTower);
         }
     }
 
@@ -287,9 +314,37 @@ export class GameScene extends Phaser.Scene {
                 (t as Turret).update(time, this.enemiesGroup);
             });
 
-            // 4. Actualizar Enemigos
+            // 4. Actualizar Enemigos y reasignar objetivos si el actual murió
             this.enemiesGroup.getChildren().forEach((e) => {
-                (e as ScrapHound).update();
+                const enemy = e as ScrapHound;
+                enemy.update();
+
+                // IA de Re-targeteo: Priorizar torretas hasta su destrucción
+                if (!enemy.isDead) {
+                    let bestTarget: Phaser.GameObjects.Components.Transform = this.energyTower;
+                    let minDist = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.energyTower.x, this.energyTower.y);
+
+                    // Buscar torreta VIVA más cercana
+                    this.turretsGroup.getChildren().forEach(t => {
+                        const turret = t as Turret;
+                        if (!turret.isDead) {
+                            const d = Phaser.Math.Distance.Between(enemy.x, enemy.y, turret.x, turret.y);
+                            if (d < minDist) {
+                                minDist = d;
+                                bestTarget = turret;
+                            }
+                        }
+                    });
+
+                    // SOLO atacar al jugador si no quedan torretas vivas cerca 
+                    // o si el jugador se interpone físicamente (manejado por el collider)
+                    const distToPlayer = Phaser.Math.Distance.Between(enemy.x, enemy.y, this.player.x, this.player.y);
+                    if (bestTarget === this.energyTower && distToPlayer < 200) {
+                        bestTarget = this.player;
+                    }
+
+                    enemy.setTarget(bestTarget);
+                }
             });
         }
     }
