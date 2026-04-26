@@ -20,7 +20,7 @@ export function EnergyMeter() {
   return (
     <div className={`meter-panel energy-panel ${isCritical ? 'meter-critical' : ''}`}>
       <div className="meter-header">
-        <span className="meter-label">ENERGIA</span>
+        <span className="meter-label">ENERGY</span>
         <span className="meter-unit" style={{ color: barColor }}>WATTS</span>
       </div>
 
@@ -74,7 +74,7 @@ export function EnergyMeter() {
 
       {/* Barra de integridad del cable */}
       <div className="sub-meter">
-        <span className="sub-label">CABLE</span>
+        <span className="sub-label">CABLE INT.</span>
         <div className="sub-bar-bg">
           <div
             className="sub-bar-fill"

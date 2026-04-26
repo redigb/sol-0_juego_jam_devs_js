@@ -1,0 +1,59 @@
+.tutorial-overlay {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9000;
+  pointer-events: none;
+  animation: tutorialFadeIn 0.4s ease;
+}
+
+@keyframes tutorialFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.tutorial-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 8, 6, 0.88);
+  border: 1px solid #7a3b1e;
+  border-left: 3px solid #ff6600;
+  padding: 10px 18px;
+  font-family: 'Share Tech Mono', monospace;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 18px rgba(255, 100, 0, 0.25);
+  min-width: 420px;
+}
+
+.tutorial-step-badge {
+  font-size: 9px;
+  color: #7a5a3a;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.tutorial-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.tutorial-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tutorial-title {
+  font-size: 12px;
+  color: #ff6600;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+.tutorial-hint {
+  font-size: 11px;
+  color: #c8a878;
+  letter-spacing: 1px;
+}

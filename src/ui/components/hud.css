@@ -159,3 +159,35 @@
   color: #ffffff;
   box-shadow: 0 0 20px rgba(255, 100, 34, 0.4);
 }
+
+/* Game Over — stats block */
+.gameover-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #3a1800;
+  padding: 14px 20px;
+  border-radius: 3px;
+}
+
+.gameover-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.stat-label {
+  color: #7a5a3a;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  color: #ff9955;
+  font-weight: bold;
+  font-size: 14px;
+}

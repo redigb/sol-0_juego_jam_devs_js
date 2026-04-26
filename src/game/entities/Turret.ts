@@ -11,15 +11,21 @@ export class Turret extends Phaser.GameObjects.Sprite {
     private target: Phaser.GameObjects.GameObject | null = null;
     private currentDir: string = 'dl';
     public hp: number = 100;
-    private maxHp: number = 100;
+    public maxHp: number = 100;
+    public ammo: number = 0; // Nueva mecánica de munición
+    public maxAmmo: number = 50;
+    public isPowered: boolean = false; // Nueva mecánica de conexión a red
     public isDead: boolean = false;
     private hpBar: Phaser.GameObjects.Graphics;
     private lastHitTime: number = 0;
     private startX: number;
     private startY: number;
 
-    constructor(scene: Phaser.Scene, x: number, y: number, bullets: Phaser.GameObjects.Group) {
+    public id: string; // ID único para sincronizar con la UI
+
+    constructor(scene: Phaser.Scene, x: number, y: number, bullets: Phaser.GameObjects.Group, id?: string) {
         super(scene, x, y, 'turret-oxidized');
+        this.id = id || `turret_${Date.now()}_${Math.floor(Math.random()*1000)}`;
         this.bullets = bullets;
         this.startX = x;
         this.startY = y;
@@ -41,32 +47,50 @@ export class Turret extends Phaser.GameObjects.Sprite {
     }
 
     private drawHpBar() {
+        const x = this.x - 40;
+        const y = this.y - 140;
+        const w = 80;
+        const h = 8;
+        
         this.hpBar.clear();
         if (this.isDead) return;
-
-        const w = 60;
-        const h = 6;
-        const x = this.x - w / 2;
-        const y = this.y - 100;
-
-        // Fondo
-        this.hpBar.fillStyle(0x000000, 0.8);
+        
+        // Fondo (Negro)
+        this.hpBar.fillStyle(0x000000, 0.5);
         this.hpBar.fillRect(x, y, w, h);
-
-        // Salud
+        
+        // Vida (Verde)
         const healthWidth = (this.hp / this.maxHp) * w;
-        this.hpBar.fillStyle(0x00ff00, 1); // Verde para aliados/torretas
+        this.hpBar.fillStyle(0x00ff00, 1);
         this.hpBar.fillRect(x, y, healthWidth, h);
+
+        // Munición (Azul) - Una barrita más fina abajo
+        this.hpBar.fillStyle(0x000000, 0.5);
+        this.hpBar.fillRect(x, y + 10, w, 4);
+        const ammoWidth = (this.ammo / this.maxAmmo) * w;
+        this.hpBar.fillStyle(0x00ffff, 1);
+        this.hpBar.fillRect(x, y + 10, ammoWidth, 4);
         
         this.hpBar.setDepth(2000);
     }
 
     update(time: number, enemies: Phaser.Physics.Arcade.Group) {
         if (this.isDead) return;
+
+        // Feedback visual de estado
+        if (!this.isPowered) {
+            this.setTint(0x444444); // Grisáceo si no tiene energía
+            return;
+        } else if (this.ammo <= 0) {
+            this.setTint(0xff8888); // Rojizo si no tiene balas
+        } else {
+            this.clearTint();
+        }
+
         this.findTarget(enemies);
         this.drawHpBar(); // Mantener barra posicionada con el sprite (por si hay oscilación)
 
-        if (this.target) {
+        if (this.target && this.ammo > 0) {
             const target = this.target as Phaser.GameObjects.Sprite;
             const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
             
@@ -81,6 +105,7 @@ export class Turret extends Phaser.GameObjects.Sprite {
             if (time > this.lastFired + this.fireRate) {
                 this.fire(target.x, target.y);
                 this.lastFired = time;
+                this.ammo--; // Consumir munición
             }
         }
     }
@@ -174,6 +199,23 @@ export class Turret extends Phaser.GameObjects.Sprite {
         if (this.hp <= 0) {
             this.die();
         }
+    }
+
+    public getIsRecentlyDamaged(): boolean {
+        return this.scene.time.now - this.lastHitTime < 2000;
+    }
+
+    public repair(amount: number): boolean {
+        if (this.isDead || this.hp >= this.maxHp) return false;
+        if (this.getIsRecentlyDamaged()) return false;
+
+        this.hp = Math.min(this.maxHp, this.hp + amount);
+        this.drawHpBar();
+        
+        this.setTint(0x00ff00);
+        this.scene.time.delayedCall(150, () => this.clearTint());
+
+        return true;
     }
 
     die() {

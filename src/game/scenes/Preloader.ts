@@ -72,6 +72,14 @@ export class Preloader extends Phaser.Scene {
       frameWidth: 169,
       frameHeight: 92
     });
+    this.load.spritesheet('arachno-bot', 'assets/sprites/enemies/bicho_araco.png', {
+      frameWidth: 153,
+      frameHeight: 204
+    });
+    this.load.spritesheet('monstro-neumatico', 'assets/sprites/enemies/monstro_neuamtico.png', {
+      frameWidth: 122,
+      frameHeight: 102
+    });
   }
 
   create() {
@@ -89,6 +97,7 @@ export class Preloader extends Phaser.Scene {
     this.createTurretAnimations();
     this.createBulletAnimations();
     this.createEnemyAnimations();
+    this.createPneumaticMonsterAnimations();
 
     this.scene.start('MainMenu');
   }
@@ -304,6 +313,56 @@ export class Preloader extends Phaser.Scene {
       frames: this.anims.generateFrameNumbers('scrap-hound', { frames: [10, 11] }),
       frameRate: 4,
       repeat: 0
+    });
+
+    // ARACHNO BOT
+    this.anims.create({
+      key: 'arachno-walk-down',
+      frames: this.anims.generateFrameNumbers('arachno-bot', { frames: [0, 1, 2] }),
+      frameRate: 8,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'arachno-walk-up',
+      frames: this.anims.generateFrameNumbers('arachno-bot', { frames: [4, 5, 6] }),
+      frameRate: 8,
+      repeat: -1
+    });
+  }
+
+  private createPneumaticMonsterAnimations() {
+    const directions = ['dr', 'ur', 'dl', 'ul'];
+    
+    directions.forEach((dir, i) => {
+      const rowOffset = i * 5;
+
+      // Walk (Frames 0, 1)
+      this.anims.create({
+        key: `monstro-walk-${dir}`,
+        frames: this.anims.generateFrameNumbers('monstro-neumatico', { 
+          frames: [rowOffset, rowOffset + 1] 
+        }),
+        frameRate: 4,
+        repeat: -1
+      });
+
+      // Attack (Frames 2, 3)
+      this.anims.create({
+        key: `monstro-attack-${dir}`,
+        frames: this.anims.generateFrameNumbers('monstro-neumatico', { 
+          frames: [rowOffset + 2, rowOffset + 3] 
+        }),
+        frameRate: 6,
+        repeat: 0
+      });
+
+      // Death/Static (Frame 4)
+      this.anims.create({
+        key: `monstro-death-${dir}`,
+        frames: [{ key: 'monstro-neumatico', frame: rowOffset + 4 }],
+        frameRate: 1,
+        repeat: 0
+      });
     });
   }
 }

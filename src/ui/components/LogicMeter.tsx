@@ -6,14 +6,14 @@ import { useGameStore } from '../../store/gameStore';
 import './meters.css';
 
 const LOG_LINES = [
-  'PROCESO 0x4A: NOMINAL',
-  'PROCESO 0x4B: NOMINAL',
-  'PROCESO 0x4C: DEGRADADO',
-  'HEURISTICA: ACTIVA',
-  'SUBSISTEMA MOTOR: OK',
-  'MODULO SENSOR: FALLO',
-  'CALCULO RUTA: ERROR',
-  'PROCESO 0x0F: CRITICAL',
+  'PROCESS 0x4A: NOMINAL',
+  'PROCESS 0x4B: NOMINAL',
+  'PROCESS 0x4C: DEGRADED',
+  'HEURISTICS: ACTIVE',
+  'MOTOR SUBSYSTEM: OK',
+  'SENSOR MODULE: FAULT',
+  'ROUTE CALC: ERROR',
+  'PROCESS 0x0F: CRITICAL',
 ];
 
 export function LogicMeter() {
@@ -27,8 +27,8 @@ export function LogicMeter() {
   const statusText = isCritical
     ? 'GLITCHING'
     : isLow
-    ? 'DEGRADADO'
-    : 'ESTABLE';
+    ? 'DEGRADED'
+    : 'STABLE';
 
   // Cuántas líneas del log "fallan" (más con lógica baja)
   const failCount = Math.floor(((100 - logic) / 100) * LOG_LINES.length);
@@ -36,7 +36,7 @@ export function LogicMeter() {
   return (
     <div className={`meter-panel logic-panel ${isCritical ? 'meter-critical' : ''}`}>
       <div className="meter-header">
-        <span className="meter-label">NUCLEO LOGICO</span>
+        <span className="meter-label">LOGIC CORE</span>
         <span
           className={`meter-status ${isCritical ? 'status-critical' : isLow ? 'status-low' : 'status-ok'}`}
         >
@@ -80,7 +80,7 @@ export function LogicMeter() {
       {/* Mensaje de advertencia cuando glitchea */}
       {isCritical && (
         <div className="glitch-warning">
-          ⚠ CONTROLES INVERTIDOS
+          ⚠ CONTROLS INVERTED
         </div>
       )}
     </div>

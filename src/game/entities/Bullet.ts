@@ -52,8 +52,9 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
         if (this.hasHit) return;
         this.hasHit = true;
         
-        this.body!.setVelocity(0, 0);
-        this.body!.enable = false; // Desactivar física inmediatamente para evitar múltiples impactos
+        const b = this.body as Phaser.Physics.Arcade.Body;
+        b.setVelocity(0, 0);
+        b.enable = false; // Desactivar física inmediatamente para evitar múltiples impactos
         this.play(`bullet-impact-${this.animSuffix}`);
         
         this.once('animationcomplete', () => {

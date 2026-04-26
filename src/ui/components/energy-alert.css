@@ -1,0 +1,37 @@
+.energy-alert-overlay {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 1000;
+  animation: pulseAlert 1s infinite alternate;
+}
+
+.energy-alert-box {
+  background: rgba(255, 34, 0, 0.15);
+  border: 1px solid #ff2200;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 0 15px rgba(255, 34, 0, 0.4);
+}
+
+.alert-icon {
+  font-size: 24px;
+}
+
+.alert-text {
+  font-family: 'Share Tech Mono', monospace;
+  color: #ffaa00;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+}
+
+@keyframes pulseAlert {
+  from { opacity: 0.6; transform: translateX(-50%) scale(0.98); }
+  to { opacity: 1; transform: translateX(-50%) scale(1.02); }
+}

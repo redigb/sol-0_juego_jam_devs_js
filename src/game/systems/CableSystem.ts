@@ -10,7 +10,6 @@ interface CablePoint {
 }
 
 export class CableSystem {
-    private scene: Phaser.Scene;
     private graphics: Phaser.GameObjects.Graphics;
     
     // Configuración del cable
@@ -21,7 +20,6 @@ export class CableSystem {
     private readonly FRICTION = 0.85;
 
     constructor(scene: Phaser.Scene, startX: number, startY: number) {
-        this.scene = scene;
         this.graphics = scene.add.graphics();
         
         // Inicializar puntos del cable en la base
@@ -125,21 +123,9 @@ export class CableSystem {
     private drawCurve() {
         this.graphics.beginPath();
         this.graphics.moveTo(this.points[0].x, this.points[0].y);
-        
-        for (let i = 1; i < this.points.length - 2; i++) {
-            const xc = (this.points[i].x + this.points[i + 1].x) / 2;
-            const yc = (this.points[i].y + this.points[i + 1].y) / 2;
-            this.graphics.quadraticCurveTo(this.points[i].x, this.points[i].y, xc, yc);
+        for (let i = 1; i < this.points.length; i++) {
+            this.graphics.lineTo(this.points[i].x, this.points[i].y);
         }
-
-        // Último segmento
-        const n = this.points.length;
-        this.graphics.quadraticCurveTo(
-            this.points[n-2].x, 
-            this.points[n-2].y, 
-            this.points[n-1].x, 
-            this.points[n-1].y
-        );
         this.graphics.strokePath();
     }
 

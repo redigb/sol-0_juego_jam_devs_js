@@ -4,6 +4,8 @@
 import { PhaserGame } from './game/PhaserGame';
 import { HUD } from './components/HUD';
 import { FactoryMenu } from './components/FactoryMenu';
+import { TurretMenu } from './components/TurretMenu';
+import { TutorialOverlay } from './components/TutorialOverlay';
 import './App.css';
 
 function App() {
@@ -12,6 +14,8 @@ function App() {
       {/* Capa de Interfaz de Usuario (HUD) */}
       <HUD />
       <FactoryMenu />
+      <TurretMenu />
+      <TutorialOverlay />
       
       <div className="game-container">
         {/* Motor Phaser (canvas) */}

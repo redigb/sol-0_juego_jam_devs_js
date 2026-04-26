@@ -1,6 +1,7 @@
 import * as Phaser from 'phaser';
+import type { Enemy } from './Enemy';
 
-export class ScrapHound extends Phaser.Physics.Arcade.Sprite {
+export class ScrapHound extends Phaser.Physics.Arcade.Sprite implements Enemy {
     private animSuffix: string = 'down';
     public isDead: boolean = false;
     public isCollectable: boolean = false; // Listo para recolectar tras la anim de muerte
@@ -26,6 +27,10 @@ export class ScrapHound extends Phaser.Physics.Arcade.Sprite {
         this.drawHpBar();
         
         this.play(`scrap-hound-walk-${this.animSuffix}`);
+    }
+
+    public getResourceType(): 'scrap' | 'energy' {
+        return 'scrap';
     }
 
     public setTarget(target: Phaser.GameObjects.Components.Transform | null) {
@@ -133,7 +138,16 @@ export class ScrapHound extends Phaser.Physics.Arcade.Sprite {
         this.once('animationcomplete', () => {
             // Se queda como objeto decorativo (setDepth por debajo)
             this.setDepth(this.y - 100);
-            this.isCollectable = true; // ¡Ahora es recolectable!
+            
+            // 35% de probabilidad de que el perro suelte chatarra (Scrap Drop Aleatorio)
+            if (Math.random() < 0.35) {
+                this.isCollectable = true;
+                // Le damos un leve tinte dorado/cian para indicar visualmente que tiene loot
+                this.setTint(0xaaffaa); 
+            } else {
+                // Si no tiene loot, se oscurece como un cadáver normal
+                this.setTint(0x555555);
+            }
             
             // Programar desaparición (decay) tras 60 segundos
             this.scene.tweens.add({

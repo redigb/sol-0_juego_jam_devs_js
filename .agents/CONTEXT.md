@@ -1,31 +1,25 @@
-# Contexto de Desarrollo: SOL-0 — El Reinicio Chatarrero
+# Contexto de Desarrollo: SOL-0 — Survive the Dump
 
 ## Resumen Ejecutivo
-Juego isométrico 2.5D de alta fidelidad construido con Phaser 3, Vite y TypeScript. Enfocado en exploración y mecánicas de recolección de chatarra con el robot SOL-0. Arquitectura rigurosa basada en Entidades, manteniendo un estándar de `0 Errores ESLint` y lógica de estado centralizada en Zustand.
+Juego isométrico 2.5D (Phaser 3 + TS + Zustand). Supervivencia táctica centrada en la gestión de **Energía (Insectos/Nodos)** y **Chatarra (Tanques/Defensas)**. Estándar de `0 Errores ESLint` y arquitectura robusta por Entidades.
 
-## Hitos Técnicos y Core Alcanzado
-1. **Entorno Isométrico Procedural (Bioma Dinámico)**
-   - Mapa base generado algorítmicamente (grid 20x20) sin huecos.
-   - **Protocolo de Descarte Visual**: Eliminación de texturas de ácido y rejillas de alta frecuencia para evitar aliasing.
-2. **Sistema de Y-Sorting y Cámara**
-   - **Pies-Base Origin**: SOL-0 y objetos usan `origin(0.5, 1)` para un Y-sorting perfecto en perspectiva isométrica.
-   - Cámara con **Zoom 0.8** y `roundPixels: true` para una vista alejada nítida.
-3. **Mecánicas de Supervivencia Logística**
-   - **Sistema de Batería (PWR)**: Consumo dinámico (0.5W pasivo / 3.5W en movimiento).
-   - **Recarga de Campo**: Recarga por proximidad física a la `EnergyTower` (< 200px).
-4. **Sistema de Defensa e IA de Combate (NUEVO)**
-   - **Torreta Oxidada (Turret)**: Estructura destructible (100 HP) con IA de detección selectiva y rotación 360º.
-   - **Balística Isométrica (Bullet)**: Proyectiles optimizados con "FlipX", escala 0.2 y prevención de doble daño.
-   - **Scrap Hound (Enemigo)**: Tanque de asedio (15 HP) con sistema de "Muerte Persistente" (se convierte en chatarra decorativa).
-   - **IA de Asedio**: Los enemigos dañan activamente las estructuras defensivas por contacto físico.
-5. **Calidad de Código e Integridad**
-   - Aplicación constante de **Code Quality Guard**: 100% Type-safe y Lint-clean.
+## Hitos Técnicos Alcanzados
+1. **Entorno Isométrico**: Bioma dinámico procedural con Y-sorting perfecto y cámara optimizada (Zoom 0.8).
+2. **Bestiario Mecánico**:
+   - **Scrap Hound**: Unidad de asedio ligera.
+   - **ArachnoBot**: Insecto ágil que provee **Energía**.
+   - **Monstruo Neumático**: Mini-boss de 122x102px con ataque rítmico pesado.
+3. **Economía de Supervivencia**: 
+   - **Energía**: Recolección de ArachnoBots y proximidad a Nodos/Torre.
+   - **Chatarra**: Desmantelamiento de Hounds/Monstruos para construcción.
+4. **Defensa de Base**: Torre central, Torretas 360º, Muros y Nodos de Energía.
+5. **UI/UX Industrial**: Menú "Survive the Dump" con efectos CRT, scanlines y feedback de texto flotante.
 
-## 🐛 Documentación de Soluciones Clave
-- **FlipX Dinámico**: Optimización de memoria usando solo 2 filas de spritesheets para cubrir las 4 direcciones isométricas mediante espejado por software.
-- **Doble Impacto (Bug Fix)**: Desactivación inmediata de `body.enable` en proyectiles durante el impacto para garantizar un balance de daño justo (1 bullet = 1 damage).
-- **Physics Null Reference**: Garantía de inicialización de cuerpo físico en el constructor de entidades antes de configurar dimensiones (`scene.physics.add.existing`).
+## Soluciones Técnicas (Compendio)
+- **Animación Isométrica**: Uso de 5 columnas para frames de 122px (Pneumatic Monster).
+- **Control de Daño**: Daño sincronizado con frames específicos y prevención de doble impacto en balas.
+- **Físicas Estables**: Hitboxes circulares en insectos para evitar jittering y colisión por solapamiento.
 
 ---
 > [!IMPORTANT]
-> **Próximo Objetivo**: Implementar el sistema de **Recolección de Chatarra (Scrap)** de los enemigos caídos para permitir la reparación/construcción de nuevas torretas.
+> **Próximo Objetivo**: Refinar el balance de oleadas y profundizar en la progresión de la Factoría.

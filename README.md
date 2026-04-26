@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# SOL-0: Survive the Dump
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![SOL-0 Icon](public/assets/sprites/player/soul-0.png)
 
-Currently, two official plugins are available:
+## 🛠️ El Intento y la Pasión
+Este proyecto nació como una propuesta para una **Game Jam**, con la intención de crear una experiencia isométrica de supervivencia y defensa de torres técnica y visualmente impactante. Aunque el tiempo fue un rival implacable y no se logró enviar a tiempo para la competencia oficial, **valió la pena cada línea de código**. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Este repositorio queda como testimonio de que se intentó todo, se pulió cada hitbox y se construyó un mundo isométrico desde cero con Phaser 3 y React. El espíritu de **SOL-0** sigue vivo en el vertedero.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🕹️ El Juego
+En **SOL-0: Survive the Dump**, controlas a una unidad robótica solitaria en un planeta vertedero. Tu misión es proteger el **Núcleo de Energía** central de oleadas de asedio mecánico mientras gestionas recursos críticos.
 
-## Expanding the ESLint configuration
+### Mecánicas Core:
+*   **Gestión de Energía**: Disparar consume batería. Debes cazar **ArachnoBots** (insectos) para recolectar energía o mantenerte cerca de los **Nodos de Red**.
+*   **Recolección de Chatarra**: Los enemigos pesados como los **Scrap Hounds** y el **Monstruo Neumático** dejan chatarra al ser derrotados. Úsala para construir defensas.
+*   **Construcción Táctica**: Despliega muros, puertas de energía y torretas automáticas 360º para frenar el avance enemigo.
+*   **Sistema de Oleadas**: Los ataques son cada vez más intensos. ¿Cuánto tiempo podrás sobrevivir en el desguace?
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🎮 Controles
+*   **WASD / Flechas**: Mover a SOL-0.
+*   **E**: Interactuar / Recolectar (Chatarra y Energía).
+*   **B**: Abrir Panel de Construcción / Cancelar.
+*   **Click Izquierdo**:
+    *   **Combate**: Disparar bolas de energía.
+    *   **Construcción**: Posicionar estructuras.
+*   **Ratón**: Apuntar.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🚀 Tecnologías
+*   **Motor**: Phaser 3.80+ (WebGL).
+*   **Framework**: React 18 + Vite.
+*   **Lenguaje**: TypeScript (100% Type-safe).
+*   **Estado**: Zustand (Sincronización Phaser <=> React).
+*   **Estilo**: CSS Vanilla (Aesthetically Rich & Gritty).
+
+---
+
+## 👷‍♂️ Instalación
+```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
+npm run dev
+
+# Construir para producción
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+*“En el vertedero, nada se pierde, todo se transforma... o se destruye.”*

@@ -25,12 +25,17 @@ export interface GameState {
   isGameOver: boolean;
   isPaused: boolean;
   isFactoryOpen: boolean;
+  isTurretMenuOpen: boolean;
+  currentTurretData: { id: string, ammo: number, maxAmmo: number } | null;
   wave: number;
   timeElapsed: number;
+  tutorialStep: number; // 0=not started 1-4=steps 5=complete
 
   // Actions
   setGameStarted: (v: boolean) => void;
   setFactoryOpen: (v: boolean) => void;
+  setTurretMenuOpen: (v: boolean, data?: { id: string, ammo: number, maxAmmo: number } | null) => void;
+  rechargeTurret: (id: string, amount: number) => void;
   setEnergy: (v: number) => void;
   setLogic: (v: number) => void;
   setArmor: (v: number) => void;
@@ -45,6 +50,9 @@ export interface GameState {
   setGameOver: (v: boolean) => void;
   setPaused: (v: boolean) => void;
   setWave: (v: number) => void;
+  advanceTutorial: (step: number) => void;
+  resetSession: () => void;
+  hasSavedSession: () => boolean;
   tick: (delta: number, flags?: { isMoving?: boolean; isNearTower?: boolean }) => void;
 }
 

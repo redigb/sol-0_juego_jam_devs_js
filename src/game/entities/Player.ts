@@ -1,6 +1,8 @@
 import * as Phaser from 'phaser';
 import { useGameStore } from '../../store/gameStore';
 
+import { PlayerEnergyBall } from './PlayerEnergyBall';
+
 export class Player extends Phaser.Physics.Arcade.Sprite {
     private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasd: {
@@ -10,7 +12,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         right: Phaser.Input.Keyboard.Key;
     };
     private eKey!: Phaser.Input.Keyboard.Key;
-    private collectCooldown: boolean = false;
+    
     
     // Configuración de movimiento
     private speed: number = 160;
@@ -22,6 +24,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     private colorMatrixFX: Phaser.FX.ColorMatrix | null = null;
     private lastHitTime: number = 0;
     private isDamageFlashing: boolean = false;
+    private lastShotTime: number = 0;
+    private fireCooldown: number = 333; // ~3 tiros por segundo
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         super(scene, x, y, 'soul-0');
@@ -34,10 +38,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setOrigin(0.5, 1); // Origen en los pies para Y-Sorting perfecto
         this.setCollideWorldBounds(true);
         
-        // Ajustar el cuerpo físico para el robot (64x64 escalado 2)
+        // Ajustar el cuerpo físico para el robot (sprite 64x64, escala 2, origin 0.5,1)
+        // Con origin(0.5,1) el anchor está en la base. El body usa coords sin escalar.
+        // Centramos en X: (64 - 50) / 2 = 7. En Y: pegamos a la base de las orugas.
         const body = this.body as Phaser.Physics.Arcade.Body;
-        body.setSize(60, 40);
-        body.setOffset(2, 24); // Ajuste fino para las orugas con el nuevo origen
+        body.setSize(50, 18);
+        body.setOffset(7, 46); // Huella isométrica de las orugas, pegada a los pies
 
         // Configurar Emitter de partículas (Polvo)
         this.dustEmitter = scene.add.particles(0, 0, 'particleDust', {
@@ -83,10 +89,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             blendMode: 'ADD',
             emitting: false,
             // Zona de emisión que cubre el cuerpo del robot (cabeza y base)
-            emitZone: {
-                type: 'random',
-                source: new Phaser.Geom.Rectangle(-15, -45, 30, 45)
-            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-15, -45, 30, 45) } as any
         });
         this.sparkEmitter.startFollow(this);
         this.sparkEmitter.setDepth(this.depth + 1);
@@ -125,6 +129,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         // Glitch: Invierte controles si la estabilidad lógica es < 20
         const inv = store.isGlitching ? -1 : 1;
+        
+        // Penalización de Velocidad: Si la batería es 0, se arrastra (30% de velocidad)
+        const currentSpeed = store.energy <= 0 ? this.speed * 0.3 : this.speed;
 
         // Mapeo Explícito Isométrico (Invertido A/W según solicitud):
         // W (Up)    -> Norte-Este (+X, -Y) -> anim: ul
@@ -140,7 +147,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (vx !== 0 || vy !== 0) {
             this.isMoving = true;
             const length = Math.sqrt(vx * vx + vy * vy);
-            this.setVelocity((vx / length) * this.speed * inv, (vy / length) * this.speed * inv);
+            this.setVelocity((vx / length) * currentSpeed * inv, (vy / length) * currentSpeed * inv);
             this.updateAnimation(vx * inv, vy * inv, true);
 
             // Emitir polvo detrás de ambas orugas usando vectores perpendiculares
@@ -181,6 +188,41 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.handleVisuals(store.isGlitching);
+
+        // Interacción (Recolección de Chatarra)
+        if (Phaser.Input.Keyboard.JustDown(this.eKey)) {
+            // Llamar a la escena para procesar la interacción
+            const gameScene = this.scene as Phaser.Scene & { handleInteraction?: () => void };
+            if (gameScene.handleInteraction) {
+                gameScene.handleInteraction();
+            }
+        }
+    }
+
+    public shoot(targetX: number, targetY: number, bulletGroup: Phaser.GameObjects.Group) {
+        const now = this.scene.time.now;
+        if (now < this.lastShotTime + this.fireCooldown) return;
+
+        const store = useGameStore.getState();
+        // Balanceo Hardcore: Cuesta 5 unidades de batería disparar
+        const cost = 5;
+        if (store.energy < cost) return; 
+        
+        store.setEnergy(store.energy - cost);
+        this.lastShotTime = now;
+        // Tutorial step 2: first shot
+        store.advanceTutorial(2);
+
+        const bullet = bulletGroup.get() as PlayerEnergyBall;
+        if (bullet) {
+            // Dispara desde el cañón / centro del robot
+            bullet.fire(this.x, this.y - 30, targetX, targetY);
+            
+            // Efecto de retroceso sutil
+            const angle = Phaser.Math.Angle.Between(this.x, this.y - 30, targetX, targetY);
+            this.x += Math.cos(angle + Math.PI) * 4;
+            this.y += Math.sin(angle + Math.PI) * 4;
+        }
     }
 
     private updateAnimation(vx: number, vy: number, isMoving: boolean) {
